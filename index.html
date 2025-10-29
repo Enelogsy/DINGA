@@ -3,36 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>DİNGA — Din Kültürü Jengası</title>
+  <title>DİNGA</title>
   <link rel="stylesheet" href="style.css">
-  <meta name="description" content="DİNGA — Din Kültürü ve Ahlak Bilgisi için interaktif jenga-quiz oyunu.">
 </head>
 <body>
   <main class="wrap">
     <header class="top">
       <h1>🕌 DİNGA</h1>
-      <p class="subtitle">Din Kültürü & Ahlak Bilgisi — Jenga tarzı bilgi oyunu</p>
     </header>
 
     <section id="startScreen" class="card">
       <label for="nameInput">Adın (oyuncu):</label>
-      <input id="nameInput" type="text" placeholder="Adını yaz (ör. Bremın)" maxlength="30">
+      <input id="nameInput" type="text" placeholder="Adını yaz..." maxlength="30">
       <div class="row">
         <button id="startBtn" class="btn primary">Oyuna Başla</button>
         <button id="howBtn" class="btn ghost">Nasıl Oynanır?</button>
       </div>
-      <p class="note">Oyunu durdurmak için <strong>Bitir</strong> butonuna basabilirsin.</p>
     </section>
 
-    <section id="gameScreen" class="card hidden" aria-hidden="true">
+    <section id="gameScreen" class="card hidden">
       <div class="game-header">
-        <div>
-          <p id="playerLabel" class="muted">Oyuncu: —</p>
-          <p id="progressLabel" class="muted">Soru: 0 / 0</p>
-        </div>
-        <div class="actions">
-          <button id="endBtn" class="btn warn">Bitir</button>
-        </div>
+        <p id="playerLabel" class="muted">Oyuncu: —</p>
+        <p id="scoreLabel" class="muted">Skor: 0</p>
+        <button id="endBtn" class="btn warn">Bitir</button>
       </div>
 
       <div class="question-box">
@@ -44,28 +37,26 @@
         <div class="row">
           <button id="submitBtn" class="btn primary">Gönder</button>
           <button id="skipBtn" class="btn">Geç</button>
-          <button id="nextBtn" class="btn ghost hidden">Sonraki</button>
         </div>
       </div>
 
-      <div id="resultMessage" class="result" aria-live="polite"></div>
+      <div id="resultMessage" class="result"></div>
     </section>
 
-    <section id="finalScreen" class="card hidden" aria-hidden="true">
+    <section id="finalScreen" class="card hidden">
       <h2 id="finalTitle">🎉 Tebrikler!</h2>
-      <p id="finalMsg">Tüm soruları tamamladınız.<br>Skorunuz: 0 / 0</p>
+      <p id="finalMsg">Skorunuz: 0</p>
       <div class="row">
         <button id="restartBtn" class="btn primary">Tekrar Oyna</button>
-        <button id="downloadBtn" class="btn">Soruları İndir (txt)</button>
       </div>
     </section>
 
     <footer class="foot">
-      <small>Hazırlandı — DİNGA. Herhangi bir üyelik gerekmez.</small>
+      <small>Hazırlayan: Ömer Baran Günaydın</small>
     </footer>
   </main>
 
-  <script src="questions.js"></script> <!-- 100 soru burada -->
+  <script src="questions.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

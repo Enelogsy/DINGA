@@ -1,188 +1,130 @@
-// app.js - DİNGA main script
-(function(){
-  // helpers
-  const $ = id => document.getElementById(id);
-  function shuffleArray(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } }
+// HTML öğeleri
+const startBtn = document.getElementById("startBtn");
+const endBtn = document.getElementById("endBtn");
+const restartBtn = document.getElementById("restartBtn");
+const submitBtn = document.getElementById("submitBtn");
+const skipBtn = document.getElementById("skipBtn");
+const nameInput = document.getElementById("nameInput");
+const questionEl = document.getElementById("question");
+const answerInput = document.getElementById("answer");
+const resultMessage = document.getElementById("resultMessage");
+const playerLabel = document.getElementById("playerLabel");
+const scoreLabel = document.getElementById("scoreLabel");
 
-  // DOM
-  const startScreen = $('startScreen');
-  const gameScreen  = $('gameScreen');
-  const finalScreen = $('finalScreen');
+const startScreen = document.getElementById("startScreen");
+const gameScreen = document.getElementById("gameScreen");
+const finalScreen = document.getElementById("finalScreen");
+const finalMsg = document.getElementById("finalMsg");
 
-  const nameInput = $('nameInput');
-  const startBtn  = $('startBtn');
-  const howBtn    = $('howBtn');
+// Sorular questions.js dosyasından geliyor
+let questions = QUESTIONS;
 
-  const playerLabel = $('playerLabel');
-  const progressLabel = $('progressLabel');
-  const questionEl = $('question');
-  const answerEl   = $('answer');
-  const submitBtn  = $('submitBtn');
-  const skipBtn    = $('skipBtn');
-  const nextBtn    = $('nextBtn');
-  const resultMsg  = $('resultMessage');
-  const endBtn     = $('endBtn');
+let currentIndex = 0;
+let score = 0;
+let playerName = "";
 
-  const finalTitle = $('finalTitle');
-  const finalMsg   = $('finalMsg');
-  const restartBtn = $('restartBtn');
-  const downloadBtn= $('downloadBtn');
+// Türkçe karakterleri normalize et
+function normalize(str) {
+  return str
+    .toLowerCase()
+    .replace(/ı/g, "i")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ş/g, "s")
+    .replace(/ç/g, "c")
+    .replace(/ğ/g, "g")
+    .trim();
+}
 
-  // Data
-  let questions = []; // will fill from QUESTIONS
-  let currentIndex = 0;
-  let correctCount = 0;
-  let playerName = '';
-
-  // Init
-  function init(){
-    if(typeof QUESTIONS === 'undefined' || !Array.isArray(QUESTIONS) || QUESTIONS.length===0){
-      questionEl.textContent = "Sorular bulunamadı!";
-      startBtn.disabled = true;
-      return;
-    }
-    // clone questions to local array
-    questions = QUESTIONS.map(q => ({ q: q.q, a: q.a }));
-    shuffleArray(questions);
-    // load saved name
-    const saved = localStorage.getItem('dinga_player');
-    if(saved) nameInput.value = saved;
-    attachEvents();
+// Soruları karıştır
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
+}
 
-  function attachEvents(){
-    startBtn.addEventListener('click', startGame);
-    howBtn.addEventListener('click', ()=> alert("Oyna: İsmini yaz > Başla > soruyu oku > cevabı yaz > Gönder. Doğruysa taş çekme hakkı kazanırsın. Bitir ile istediğin zaman çıkabilirsin."))
-    submitBtn.addEventListener('click', submitAnswer);
-    skipBtn.addEventListener('click', skipQuestion);
-    nextBtn.addEventListener('click', nextQuestion);
-    endBtn.addEventListener('click', endGame);
-    restartBtn.addEventListener('click', restartGame);
-    downloadBtn.addEventListener('click', downloadQuestions);
-    answerEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') submitAnswer(); });
-    nameInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') startGame(); });
-  }
+// Oyunu başlat
+function startGame() {
+  playerName = nameInput.value.trim() || "Oyuncu";
+  playerLabel.textContent = `Oyuncu: ${playerName}`;
+  score = 0;
+  scoreLabel.textContent = `Skor: ${score}`;
+  shuffle(questions);
+  currentIndex = 0;
 
-  // Start game
-  function startGame(){
-    playerName = nameInput.value.trim() || 'Misafir';
-    localStorage.setItem('dinga_player', playerName);
-    playerLabel.textContent = `Oyuncu: ${playerName}`;
+  startScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+  finalScreen.classList.add("hidden");
+  loadQuestion();
+}
+
+// Soru yükle
+function loadQuestion() {
+  if (currentIndex >= questions.length) {
+    shuffle(questions);
     currentIndex = 0;
-    correctCount = 0;
-    // ensure shuffled
-    shuffleArray(questions);
-    showScreen('game');
-    showQuestion(currentIndex);
+  }
+  const q = questions[currentIndex];
+  questionEl.textContent = q.q;
+  answerInput.value = "";
+  resultMessage.textContent = "";
+  submitBtn.disabled = false; // yeni soru gelince buton tekrar aktif olur
+}
+
+// Cevabı kontrol et
+function submitAnswer() {
+  const userAns = normalize(answerInput.value);
+  const correctAns = normalize(questions[currentIndex].a);
+
+  if (!userAns) {
+    resultMessage.textContent = "⚠️ Lütfen bir cevap yaz.";
+    return;
   }
 
-  // Show screen helper
-  function showScreen(name){
-    if(name==='game'){
-      startScreen.classList.add('hidden'); startScreen.setAttribute('aria-hidden','true');
-      finalScreen.classList.add('hidden'); finalScreen.setAttribute('aria-hidden','true');
-      gameScreen.classList.remove('hidden'); gameScreen.setAttribute('aria-hidden','false');
-      answerEl.style.display = ''; submitBtn.style.display = ''; skipBtn.style.display = '';
-    } else if(name==='final'){
-      gameScreen.classList.add('hidden'); gameScreen.setAttribute('aria-hidden','true');
-      startScreen.classList.add('hidden'); startScreen.setAttribute('aria-hidden','true');
-      finalScreen.classList.remove('hidden'); finalScreen.setAttribute('aria-hidden','false');
-    } else {
-      startScreen.classList.remove('hidden'); startScreen.setAttribute('aria-hidden','false');
-      gameScreen.classList.add('hidden'); gameScreen.setAttribute('aria-hidden','true');
-      finalScreen.classList.add('hidden'); finalScreen.setAttribute('aria-hidden','true');
-    }
+  submitBtn.disabled = true; // buton devre dışı
+
+  if (userAns === correctAns) {
+    score += 5;
+    resultMessage.style.color = "#16a34a";
+    resultMessage.textContent = "✅ Doğru!";
+  } else {
+    score -= 2;
+    resultMessage.style.color = "#ef4444";
+    resultMessage.textContent = `❌ Yanlış! Doğru cevap: ${questions[currentIndex].a}`;
   }
 
-  // Show question
-  function showQuestion(idx){
-    if(idx >= questions.length){
-      showFinalScreen();
-      return;
-    }
-    const obj = questions[idx];
-    questionEl.textContent = obj.q;
-    answerEl.value = '';
-    resultMsg.textContent = '';
-    nextBtn.classList.add('hidden');
-    skipBtn.classList.remove('hidden');
-    updateProgress();
-    answerEl.focus();
+  scoreLabel.textContent = `Skor: ${score}`;
+}
+
+// Soruyu manuel geç
+function skipQuestion() {
+  currentIndex++;
+  loadQuestion();
+}
+
+// Oyunu bitir
+function endGame() {
+  const confirmEnd = confirm("Kuleyi sen mi devirdin?");
+  if (confirmEnd) {
+    score -= 15;
   }
 
-  function updateProgress(){
-    progressLabel.textContent = `Soru: ${Math.min(currentIndex+1, questions.length)} / ${questions.length}`;
-  }
+  gameScreen.classList.add("hidden");
+  finalScreen.classList.remove("hidden");
+  finalMsg.textContent = `Skorunuz: ${score}`;
+}
 
-  // Submit
-  function submitAnswer(){
-    const val = answerEl.value.trim();
-    if(val === '') return;
-    const correct = questions[currentIndex].a;
-    if(normalize(val) === normalize(correct)){
-      resultMsg.style.color = 'var(--accent-2)';
-      resultMsg.textContent = `✅ Doğru cevap! Taş çekebilirsiniz.`;
-      correctCount++;
-      nextBtn.classList.remove('hidden');
-      skipBtn.classList.add('hidden');
-    } else {
-      resultMsg.style.color = '#ff6b6b';
-      resultMsg.innerHTML = `❌ Yanlış cevap! <br> Doğru cevap: <strong>${escapeHtml(correct)}</strong>`;
-      // allow player to read and then skip
-      skipBtn.classList.remove('hidden');
-      nextBtn.classList.add('hidden');
-    }
-  }
+// Yeniden başlat
+function restartGame() {
+  startScreen.classList.remove("hidden");
+  gameScreen.classList.add("hidden");
+  finalScreen.classList.add("hidden");
+}
 
-  function normalize(s){
-    return s.toString().trim().toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c');
-  }
-
-  function escapeHtml(str){
-    return (''+str).replace(/[&<>"'`=\/]/g, function(s){ return '&#'+s.charCodeAt(0)+';'; });
-  }
-
-  // Skip
-  function skipQuestion(){
-    currentIndex++;
-    showQuestion(currentIndex);
-  }
-
-  // Next (after correct)
-  function nextQuestion(){
-    currentIndex++;
-    showQuestion(currentIndex);
-  }
-
-  // End game (confirm)
-  function endGame(){
-    const ok = confirm("Oyunu bitirmek istediğine emin misin?");
-    if(ok){
-      showFinalScreen();
-    }
-  }
-
-  function showFinalScreen(){
-    showScreen('final');
-    finalMsg.innerHTML = `Tüm soruları tamamladınız.<br>Skorunuz: ${correctCount} / ${questions.length}`;
-  }
-
-  function restartGame(){
-    // reset and go to start
-    correctCount = 0;
-    currentIndex = 0;
-    showScreen('start');
-  }
-
-  function downloadQuestions(){
-    const text = questions.map((x,i)=> `${i+1}. ${x.q} — Cevap: ${x.a}`).join("\n\n");
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'dinga_sorular.txt'; document.body.appendChild(a); a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
-  }
-
-  // init on dom ready
-  document.addEventListener('DOMContentLoaded', init);
-})();
+// Eventler
+startBtn.addEventListener("click", startGame);
+submitBtn.addEventListener("click", submitAnswer);
+skipBtn.addEventListener("click", skipQuestion);
+endBtn.addEventListener("click", endGame);
+restartBtn.addEventListener("click", restartGame);
