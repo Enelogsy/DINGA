@@ -25,5 +25,5 @@ const QUESTIONS = [
   { q: "Peygamberlerin güvenilirlik sıfatı nedir?", a: "Emanet" },
   { q: "Hicri takvimin başlangıcı hangi olaydır?", a: "Hicret" },
   { q: "Hz. Muhammed'in vefat ettiği yıl kaçtır?", a: "632" },
-  { q: "Hz. Muhammed'in toplum ahlakına katkısını özetleyen kelime nedir?", a: "Örnek" }
+  { q: "Kur'an-ı Kerim'in en uzun suresi nedir?", a: "Bakara" },
 ];
