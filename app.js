@@ -1,10 +1,8 @@
-// app.js
 let playerName = "";
 let score = 0;
-let hesoyamUsed = false; // sadece 1 defa kullanılabilir
+let hesoyamUsed = false;
 let currentQuestion = {};
 let shuffledQuestions = [];
-let currentIndex = 0;
 
 const startScreen = document.getElementById("startScreen");
 const gameScreen = document.getElementById("gameScreen");
@@ -24,7 +22,7 @@ const finalMsg = document.getElementById("finalMsg");
 // Başlat
 document.getElementById("startBtn").addEventListener("click", () => {
   const name = nameInput.value.trim();
-  if (!name) return alert("Lütfen adını yaz");
+  if (!name) return alert("Lütfen adını yaz!");
 
   playerName = name;
   score = 0;
@@ -32,9 +30,8 @@ document.getElementById("startBtn").addEventListener("click", () => {
 
   startScreen.classList.add("hidden");
   gameScreen.classList.remove("hidden");
-  playerLabel.textContent = `Oyuncu: ${playerName}`;
-  loadNewQuestion();
   updateScore();
+  loadNewQuestion();
 });
 
 // Yeni soru yükle
@@ -52,7 +49,7 @@ function loadNewQuestion() {
 
 // Skor güncelle
 function updateScore() {
-  playerLabel.textContent = `${playerName} | Puan: ${score}`;
+  playerLabel.textContent = `Oyuncu: ${playerName} | Skor: ${score}`;
 }
 
 // Cevap kontrolü
@@ -62,13 +59,11 @@ submitBtn.addEventListener("click", () => {
   submitBtn.disabled = true;
 
   // 🧩 HESOYAM kodu
-  if (answer === "hesoyam" && !hesoyamUsed) {
+  if (answer === "ı love you ömer" && !hesoyamUsed) {
     hesoyamUsed = true;
     score += 250000;
     updateScore();
-    showCJOverlay(() => {
-      loadNewQuestion();
-    });
+    showCJOverlay();
     return;
   }
 
@@ -83,10 +78,6 @@ submitBtn.addEventListener("click", () => {
   }
 
   updateScore();
-
-  setTimeout(() => {
-    loadNewQuestion();
-  }, 1000);
 });
 
 // Geç
@@ -97,10 +88,7 @@ skipBtn.addEventListener("click", () => {
 // Bitir
 endBtn.addEventListener("click", () => {
   const towerDown = confirm("Kuleyi sen mi devirdin?");
-
-  if (towerDown) {
-    score -= 15;
-  }
+  if (towerDown) score -= 15;
 
   gameScreen.classList.add("hidden");
   finalScreen.classList.remove("hidden");
@@ -115,7 +103,7 @@ restartBtn.addEventListener("click", () => {
   startScreen.classList.remove("hidden");
 });
 
-// Türkçe karakter hatalarını önlemek için normalize fonksiyonu
+// Türkçe karakterleri düzelt
 function normalize(text) {
   return text
     .replaceAll("ı", "i")
@@ -127,8 +115,8 @@ function normalize(text) {
     .toLowerCase();
 }
 
-// CJ görseli oluşturma + ses efekti
-function showCJOverlay(nextQuestionCallback) {
+// CJ efekti
+function showCJOverlay() {
   const overlay = document.createElement("div");
   overlay.style.position = "fixed";
   overlay.style.top = 0;
@@ -151,11 +139,10 @@ function showCJOverlay(nextQuestionCallback) {
   `;
 
   document.body.appendChild(overlay);
-
   requestAnimationFrame(() => (overlay.style.opacity = 1));
 
-  // 🔊 Ses dosyası
-  const audio = new Audio("https://cdn.pixabay.com/download/audio/2023/09/20/audio_8c6e2f2f9a.mp3?filename=oh-shit-here-we-go-again-181990.mp3");
+  // Ses efekti (çalışan link)
+  const audio = new Audio("https://cdn.quicksounds.com/uploads/51/ah-shit-here-we-go-again-gta.mp3");
   audio.volume = 0.6;
   audio.play().catch(() => {
     console.warn("Ses oynatılamadı (tarayıcı izin vermedi).");
@@ -163,12 +150,6 @@ function showCJOverlay(nextQuestionCallback) {
 
   setTimeout(() => {
     overlay.style.opacity = 0;
-    setTimeout(() => {
-      overlay.remove();
-      if (typeof nextQuestionCallback === "function") {
-        nextQuestionCallback();
-      }
-    }, 800);
+    setTimeout(() => overlay.remove(), 800);
   }, 5000);
 }
-
