@@ -64,7 +64,7 @@ submitBtn.addEventListener("click", () => {
   // 🧩 HESOYAM kodu
   if (answer === "hesoyam" && !hesoyamUsed) {
     hesoyamUsed = true;
-    score += 250;
+    score += 250000;
     updateScore();
     showCJOverlay(() => {
       loadNewQuestion();
@@ -171,3 +171,4 @@ function showCJOverlay(nextQuestionCallback) {
     }, 800);
   }, 5000);
 }
+
